@@ -412,7 +412,7 @@ int main() {
     printf("\n");
     printf(ANSI_BLUE);
     printf("╔═══════════════════════════════════════════════════════════════╗\n");
-    printf("║      VXLAN Inner VLAN Tag Handling Test Suite                ║\n");
+    printf("║      VXLAN Inner VLAN Tag Handling Test Suite                 ║\n");
     printf("║              RFC 7348 Section 6.1 Compliance                  ║\n");
     printf("╚═══════════════════════════════════════════════════════════════╝\n");
     printf(ANSI_RESET "\n");
@@ -441,7 +441,7 @@ int main() {
     if (tests_failed == 0) {
         printf("\n" ANSI_GREEN);
         printf("╔═══════════════════════════════════════════════════════════════╗\n");
-        printf("║         ✓ All RFC 7348 VLAN Tests Passed Successfully        ║\n");
+        printf("║         ✓ All RFC 7348 VLAN Tests Passed Successfully         ║\n");
         printf("╚═══════════════════════════════════════════════════════════════╝\n");
         printf(ANSI_RESET "\n");
     }

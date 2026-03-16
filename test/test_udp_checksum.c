@@ -46,7 +46,7 @@ int main() {
     printf("\n");
     printf(ANSI_BLUE);
     printf("╔═══════════════════════════════════════════════════════════════╗\n");
-    printf("║     RFC 7348 UDP Checksum Validation Demonstration           ║\n");
+    printf("║     RFC 7348 UDP Checksum Validation Demonstration            ║\n");
     printf("╚═══════════════════════════════════════════════════════════════╝\n");
     printf(ANSI_RESET);
     
