@@ -408,11 +408,176 @@ bool evpn_multihome_local_bias(evpn_ctx_t *ctx, const evpn_esi_t *esi,
                                const uint8_t *dst_mac);
 
 /* ============================================================
- * Aliasing Support
+ * Single-Active Multi-homing (WEEK 4)
  * ============================================================ */
 
 /**
- * Check if MAC is aliased (multi-homed)
+ * Enable single-active mode for Ethernet Segment
+ * 
+ * In single-active mode, only one PE actively forwards traffic
+ * to/from the multi-homed device. Other PEs are in standby.
+ * Provides faster convergence than all-active for some scenarios.
+ * 
+ * RFC 7432 Section 8.4 - Single-Active Redundancy Mode
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_enable_single_active(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Elect active PE for single-active Ethernet Segment
+ * 
+ * Uses DF election algorithm to determine which PE is active.
+ * Active PE forwards all traffic, standby PEs block traffic.
+ * 
+ * Election criteria:
+ * - Lowest IP address among operational PEs
+ * - Or use DF election result
+ * - Deterministic selection across all PEs
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @param active_pe Output: Elected active PE IP address
+ * @return          0 on success, -1 on error
+ */
+int evpn_elect_active_pe(evpn_ctx_t *ctx, const evpn_esi_t *esi, 
+                         uint32_t *active_pe);
+
+/**
+ * Check if we are the active PE for this Ethernet Segment
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          true if we are active PE, false if standby
+ */
+bool evpn_am_i_active_pe(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Get the currently active PE for Ethernet Segment
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @param active_pe Output: Active PE IP address
+ * @return          0 on success, -1 on error
+ */
+int evpn_get_active_pe(evpn_ctx_t *ctx, const evpn_esi_t *esi, 
+                       uint32_t *active_pe);
+
+/**
+ * Handle PE failure in single-active mode
+ * 
+ * When active PE fails:
+ * 1. Detect failure (via BGP session loss or route withdrawal)
+ * 2. Elect new active PE
+ * 3. Standby PE takes over immediately
+ * 4. Converge within sub-second timeframe
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @param failed_pe Failed PE IP address
+ * @return          0 on success, -1 on error
+ */
+int evpn_handle_pe_failure(evpn_ctx_t *ctx, const evpn_esi_t *esi, 
+                           uint32_t failed_pe);
+
+/**
+ * Forward traffic in single-active mode
+ * 
+ * Decision logic:
+ * - If we are active PE: FORWARD
+ * - If we are standby PE: DROP
+ * - Applies to both ingress and egress traffic
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @param packet    Packet data
+ * @param len       Packet length
+ * @param direction 0 = ingress (from CE), 1 = egress (to CE)
+ * @return          0 if should forward, -1 if should drop
+ */
+int evpn_single_active_forward(evpn_ctx_t *ctx, const evpn_esi_t *esi,
+                               const uint8_t *packet, size_t len, int direction);
+
+/**
+ * Transition from all-active to single-active mode
+ * 
+ * Handles mode change gracefully:
+ * 1. Stop all-active load balancing
+ * 2. Elect active PE
+ * 3. Non-active PEs withdraw MAC routes
+ * 4. Ensure no traffic loops or blackholing
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_transition_to_single_active(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Transition from single-active to all-active mode
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_transition_to_all_active(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Get single-active status and statistics
+ * 
+ * @param ctx           EVPN context
+ * @param esi           Ethernet Segment Identifier
+ * @param active_pe     Output: Current active PE
+ * @param standby_count Output: Number of standby PEs
+ * @param failover_count Output: Number of failovers that occurred
+ * @return              0 on success, -1 on error
+ */
+int evpn_single_active_get_status(evpn_ctx_t *ctx, const evpn_esi_t *esi,
+                                   uint32_t *active_pe, int *standby_count,
+                                   uint64_t *failover_count);
+
+
+/* ============================================================
+ * Aliasing Support (WEEK 4 Feature 3)
+ * RFC 7432 Section 8.4 - Aliasing and Backup Path
+ * ============================================================ */
+
+/**
+ * Enable aliasing for an Ethernet Segment
+ * 
+ * Aliasing allows a MAC address to have multiple paths (aliases) to
+ * different PEs. When a remote PE receives MAC routes from multiple
+ * PEs with the same ESI, it installs all paths for load balancing.
+ * 
+ * Benefits:
+ * - Multiple paths to same destination
+ * - Per-flow load balancing (ECMP-like)
+ * - Better bandwidth utilization
+ * - Enhanced redundancy
+ * 
+ * RFC 7432 Section 8.4: "All PEs attached to the same ES may
+ * advertise the same MAC address, allowing traffic to be
+ * load-balanced across all PEs."
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_enable_aliasing(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Disable aliasing for an Ethernet Segment
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_disable_aliasing(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Check if MAC is aliased (reachable via multiple PEs)
  * 
  * @param ctx       EVPN context
  * @param mac       MAC address
@@ -422,17 +587,117 @@ bool evpn_multihome_local_bias(evpn_ctx_t *ctx, const evpn_esi_t *esi,
 bool evpn_is_mac_aliased(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni);
 
 /**
- * Get all PEs for aliased MAC
+ * Get all PEs (aliases) for a MAC address
+ * 
+ * Returns list of all PEs that can reach this MAC address.
+ * Used for load balancing decisions.
  * 
  * @param ctx       EVPN context
  * @param mac       MAC address
  * @param vni       VNI
- * @param pe_ips    Output: Array of PE IPs
+ * @param pe_ips    Output: Array of PE IPs (aliases)
  * @param count     Input/Output: Max count / Actual count
  * @return          0 on success, -1 on error
  */
 int evpn_get_aliased_pes(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni,
                          uint32_t *pe_ips, int *count);
+
+/**
+ * Select best PE for a flow using aliasing
+ * 
+ * Given multiple PEs that can reach a MAC (aliases), select the
+ * best PE for this specific flow using hash-based load balancing.
+ * 
+ * Selection algorithm:
+ * - Hash on flow 5-tuple (src IP, dst IP, protocol, src port, dst port)
+ * - Consistent hashing across all available PEs
+ * - Per-flow stickiness (same flow → same PE)
+ * - Distributes traffic evenly
+ * 
+ * @param ctx           EVPN context
+ * @param mac           Destination MAC address
+ * @param vni           VNI
+ * @param flow_hash     Flow identifier (hash of 5-tuple)
+ * @param selected_pe   Output: Selected PE IP
+ * @return              0 on success, -1 on error
+ */
+int evpn_alias_select_pe(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni,
+                         uint32_t flow_hash, uint32_t *selected_pe);
+
+/**
+ * Add alias path for a MAC address
+ * 
+ * When receiving a Type 2 MAC/IP route, add this PE as an alias
+ * if the MAC is multi-homed (same ESI from multiple PEs).
+ * 
+ * @param ctx       EVPN context
+ * @param mac       MAC address
+ * @param vni       VNI
+ * @param pe_ip     PE IP address (alias)
+ * @param esi       ESI of the Ethernet Segment
+ * @return          0 on success, -1 on error
+ */
+int evpn_add_mac_alias(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni,
+                       uint32_t pe_ip, const evpn_esi_t *esi);
+
+/**
+ * Remove alias path for a MAC address
+ * 
+ * When a PE fails or withdraws a MAC route, remove it from the
+ * alias list.
+ * 
+ * @param ctx       EVPN context
+ * @param mac       MAC address
+ * @param vni       VNI
+ * @param pe_ip     PE IP address to remove
+ * @return          0 on success, -1 on error
+ */
+int evpn_remove_mac_alias(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni,
+                          uint32_t pe_ip);
+
+/**
+ * Perform per-flow load balancing across aliases
+ * 
+ * Given a packet, determine which PE to forward to based on
+ * flow hash and available aliases.
+ * 
+ * @param ctx       EVPN context
+ * @param packet    Packet data (for extracting 5-tuple)
+ * @param len       Packet length
+ * @param dst_mac   Destination MAC
+ * @param vni       VNI
+ * @param next_hop  Output: Selected next-hop PE IP
+ * @return          0 on success, -1 on error
+ */
+int evpn_alias_load_balance(evpn_ctx_t *ctx, const uint8_t *packet, size_t len,
+                            const uint8_t *dst_mac, uint32_t vni, 
+                            uint32_t *next_hop);
+
+/**
+ * Get aliasing statistics
+ * 
+ * @param ctx               EVPN context
+ * @param esi               Ethernet Segment Identifier
+ * @param aliased_macs      Output: Number of aliased MACs
+ * @param total_aliases     Output: Total alias paths
+ * @param flows_balanced    Output: Flows load-balanced
+ * @return                  0 on success, -1 on error
+ */
+int evpn_get_aliasing_stats(evpn_ctx_t *ctx, const evpn_esi_t *esi,
+                            int *aliased_macs, int *total_aliases,
+                            uint64_t *flows_balanced);
+
+/**
+ * Compute flow hash for load balancing
+ * 
+ * Hash function that extracts 5-tuple from packet and computes
+ * a hash value for consistent per-flow load balancing.
+ * 
+ * @param packet    Packet data
+ * @param len       Packet length
+ * @return          Flow hash value
+ */
+uint32_t evpn_compute_flow_hash(const uint8_t *packet, size_t len);
 
 /* ============================================================
  * Mass Withdrawal (Fast Convergence)
@@ -515,5 +780,175 @@ void evpn_dump_segments(evpn_ctx_t *ctx, const evpn_esi_t *esi);
  * @param buf_size  Buffer size
  */
 void evpn_esi_to_string(const evpn_esi_t *esi, char *buf, size_t buf_size);
+
+/* ============================================================
+ * Mass Withdrawal (WEEK 4 Feature 2)
+ * RFC 7432 Section 8.5 - Fast Convergence
+ * ============================================================ */
+
+/**
+ * Perform mass withdrawal of all routes for an Ethernet Segment
+ * 
+ * When an Ethernet Segment fails or goes down, withdraw ALL associated
+ * routes (Type 1, Type 2, Type 4) simultaneously for fast convergence.
+ * 
+ * This is critical for:
+ * - Fast failover (sub-second convergence)
+ * - Preventing blackholing during failures
+ * - Reducing route churn during ES failures
+ * 
+ * RFC 7432 Section 8.5: "When all PEs attached to a given ES lose
+ * connectivity to that ES, a mass withdraw mechanism is used."
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          Number of routes withdrawn, -1 on error
+ */
+int evpn_mass_withdraw(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Withdraw all Type 2 (MAC/IP) routes for an Ethernet Segment
+ * 
+ * Used as part of mass withdrawal or when transitioning to single-active
+ * mode and we are not the active PE.
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @param vni       VNI (0 for all VNIs)
+ * @return          Number of routes withdrawn, -1 on error
+ */
+int evpn_withdraw_all_mac_routes(evpn_ctx_t *ctx, const evpn_esi_t *esi, 
+                                 uint32_t vni);
+
+/**
+ * Withdraw all Type 1 (Auto-Discovery) routes for Ethernet Segment
+ * 
+ * Signals to remote PEs that we are no longer attached to this ES.
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_withdraw_all_ad_routes(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Withdraw Type 4 (Ethernet Segment) route
+ * 
+ * Removes ES membership advertisement.
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_withdraw_es_route(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Fast convergence on ES failure
+ * 
+ * Complete fast convergence process:
+ * 1. Detect ES failure (link down, all local CEs unreachable)
+ * 2. Perform mass withdrawal of all routes
+ * 3. Update local state
+ * 4. Trigger re-election if needed
+ * 
+ * Convergence time target: < 1 second
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_es_failure_fast_convergence(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Batch withdraw multiple MAC routes efficiently
+ * 
+ * Instead of sending one BGP UPDATE per MAC, batch multiple MACs
+ * into a single UPDATE message for efficiency.
+ * 
+ * @param ctx           EVPN context
+ * @param mac_list      Array of MAC addresses
+ * @param mac_count     Number of MACs
+ * @param vni           VNI
+ * @return              Number of routes withdrawn, -1 on error
+ */
+int evpn_batch_withdraw_macs(evpn_ctx_t *ctx, const uint8_t (*mac_list)[6],
+                             int mac_count, uint32_t vni);
+
+/**
+ * Mark Ethernet Segment as failed/down
+ * 
+ * Updates ES state and triggers mass withdrawal if configured.
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_es_mark_down(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Mark Ethernet Segment as operational/up
+ * 
+ * Re-advertises all routes after ES recovery.
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_es_mark_up(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Get mass withdrawal statistics
+ * 
+ * @param ctx               EVPN context
+ * @param esi               Ethernet Segment Identifier
+ * @param withdrawal_count  Output: Total withdrawals performed
+ * @param last_withdrawal   Output: Timestamp of last withdrawal
+ * @return                  0 on success, -1 on error
+ */
+int evpn_get_mass_withdrawal_stats(evpn_ctx_t *ctx, const evpn_esi_t *esi,
+                                    uint64_t *withdrawal_count,
+                                    time_t *last_withdrawal);
+
+
+/* ============================================================
+ * Local Bias (WEEK 4 Feature 4)
+ * Traffic Optimization
+ * ============================================================ */
+
+/**
+ * Enable local bias for an Ethernet Segment
+ * 
+ * Local bias prefers the local PE for forwarding when available,
+ * reducing inter-PE traffic and improving performance.
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @return          0 on success, -1 on error
+ */
+int evpn_enable_local_bias(evpn_ctx_t *ctx, const evpn_esi_t *esi);
+
+/**
+ * Check if we should prefer local forwarding
+ * 
+ * @param ctx       EVPN context
+ * @param esi       Ethernet Segment Identifier
+ * @param dst_mac   Destination MAC
+ * @return          true if local PE preferred, false otherwise
+ */
+bool evpn_should_use_local(evpn_ctx_t *ctx, const evpn_esi_t *esi,
+                           const uint8_t *dst_mac);
+
+/**
+ * Get local bias statistics
+ * 
+ * @param ctx               EVPN context
+ * @param esi               Ethernet Segment Identifier
+ * @param local_forwards    Output: Packets forwarded locally
+ * @param remote_forwards   Output: Packets forwarded remotely
+ * @return                  0 on success, -1 on error
+ */
+int evpn_get_local_bias_stats(evpn_ctx_t *ctx, const evpn_esi_t *esi,
+                              uint64_t *local_forwards, 
+                              uint64_t *remote_forwards);
 
 #endif /* EVPN_MULTIHOMING_H */

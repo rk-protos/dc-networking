@@ -166,6 +166,24 @@ typedef struct {
     uint32_t df_ip;            /* Designated Forwarder IP */
     bool is_df;                /* Are we the DF? */
     time_t last_update;        /* Last update time */
+    
+    /* Single-Active Multi-homing (Week 4) */
+    uint32_t active_pe_ip;     /* Active PE in single-active mode */
+    bool is_active_pe;         /* Are we the active PE? */
+    uint64_t failover_count;   /* Number of failovers */
+    time_t last_failover;      /* Last failover timestamp */
+    
+    /* Mass Withdrawal (Week 4.2) */
+    bool is_operational;       /* ES operational status */
+    uint64_t withdrawal_count; /* Number of mass withdrawals */
+    time_t last_withdrawal;    /* Last mass withdrawal timestamp */
+    int withdrawn_routes;      /* Routes withdrawn in last mass withdrawal */
+    
+    /* Aliasing Support (Week 4.3) */
+    bool aliasing_enabled;     /* Aliasing enabled for this ES */
+    int aliased_mac_count;     /* Number of MACs with multiple paths */
+    uint64_t flows_balanced;   /* Flows load-balanced via aliasing */
+    
     pthread_mutex_t lock;      /* Thread safety */
 } evpn_ethernet_segment_t;
 
