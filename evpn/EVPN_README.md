@@ -16,6 +16,55 @@
 | **6** | Additional Features |  
 ---
 
+### **1: BGP Foundation** 
+
+- Complete BGP-4 implementation
+- Session management, FSM
+- UPDATE messages, path attributes
+
+### **2: MAC Learning & VXLAN** 
+
+- MAC learning, no flooding
+- VXLAN integration
+- Type 2 & 3 routes
+
+### **3: Multi-homing Basics** 
+
+- All-active & single-active
+- DF election (3 algorithms)
+- Type 1 & 4 routes
+
+### **4: Advanced Multi-homing** 
+
+- Single-active with failover
+- Mass withdrawal
+- Aliasing & local bias
+
+### **5: Layer 3 & Advanced** 
+
+- Type 5 routes (IP prefix)
+- MAC mobility
+- ARP suppression (95% reduction)
+- Route policies
+
+### **6: Additional Features** 
+
+- DCI (Data Center Interconnect)
+- Graceful restart
+- RR redundancy
+- Extended communities
+- Performance optimizations
+- Monitoring & debugging
+
+
+### **In summary - This Includes:**
+- Complete EVPN Stack:
+- BGP-4 - Full control plane
+- EVPN - All 5 route types
+- VXLAN - Data plane integration
+- Multi-homing - All-active & single-active
+- Layer 3 - Inter-subnet routing
+  
 
 
 ## Implementation Details
