@@ -292,7 +292,7 @@ int evpn_decode_type2_route(const uint8_t *nlri, size_t nlri_len,
  * Advertise local MAC/IP to BGP peers
  */
 int evpn_advertise_mac_ip(evpn_ctx_t *ctx, const uint8_t *mac, 
-                          uint32_t ip, uint32_t vni) {
+                          uint32_t ip, uint32_t __attribute__((unused)) vni) {
     if (!ctx || !mac) {
         return -1;
     }
@@ -371,7 +371,7 @@ int evpn_advertise_mac_ip(evpn_ctx_t *ctx, const uint8_t *mac,
 /**
  * Withdraw MAC/IP route
  */
-int evpn_withdraw_mac_ip(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni) {
+int evpn_withdraw_mac_ip(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t __attribute__((unused)) vni) {
     if (!ctx || !mac) {
         return -1;
     }
@@ -519,7 +519,7 @@ int evpn_decode_type3_route(const uint8_t *nlri, size_t nlri_len,
 /**
  * Advertise Inclusive Multicast route
  */
-int evpn_advertise_inclusive_mcast(evpn_ctx_t *ctx, uint32_t vni) {
+int evpn_advertise_inclusive_mcast(evpn_ctx_t *ctx, uint32_t __attribute__((unused)) vni) {
     if (!ctx) {
         return -1;
     }
@@ -581,7 +581,7 @@ int evpn_advertise_inclusive_mcast(evpn_ctx_t *ctx, uint32_t vni) {
 /**
  * Withdraw Inclusive Multicast route
  */
-int evpn_withdraw_inclusive_mcast(evpn_ctx_t *ctx, uint32_t vni) {
+int evpn_withdraw_inclusive_mcast(evpn_ctx_t *ctx, uint32_t __attribute__((unused)) vni) {
     if (!ctx) {
         return -1;
     }
@@ -719,7 +719,7 @@ int evpn_decode_type1_route(const uint8_t *nlri, size_t nlri_len,
  * Advertise Ethernet Auto-Discovery route
  */
 int evpn_advertise_ethernet_ad(evpn_ctx_t *ctx, const evpn_esi_t *esi,
-                                uint32_t ethernet_tag, uint32_t vni) {
+                                uint32_t ethernet_tag, uint32_t __attribute__((unused)) vni) {
     if (!ctx || !esi) {
         return -1;
     }
@@ -1145,7 +1145,7 @@ int evpn_decode_type5_route(const uint8_t *nlri, size_t nlri_len,
  * Advertise IP prefix via Type 5 route
  */
 int evpn_advertise_ip_prefix(evpn_ctx_t *ctx, uint32_t ip_prefix,
-                             uint8_t prefix_len, uint32_t gw_ip, uint32_t vni) {
+                             uint8_t prefix_len, uint32_t gw_ip, uint32_t __attribute__((unused)) vni) {
     if (!ctx) {
         return -1;
     }
@@ -1197,7 +1197,7 @@ int evpn_advertise_ip_prefix(evpn_ctx_t *ctx, uint32_t ip_prefix,
  * Withdraw IP prefix
  */
 int evpn_withdraw_ip_prefix(evpn_ctx_t *ctx, uint32_t ip_prefix,
-                            uint8_t prefix_len, uint32_t vni) {
+                            uint8_t prefix_len, uint32_t __attribute__((unused)) vni) {
     if (!ctx) {
         return -1;
     }
@@ -1242,7 +1242,7 @@ int evpn_process_ip_prefix_route(evpn_ctx_t *ctx,
  * Install IP prefix route in routing table
  */
 int evpn_install_ip_route(evpn_ctx_t *ctx, uint32_t ip_prefix,
-                          uint8_t prefix_len, uint32_t next_hop, uint32_t vni) {
+                          uint8_t prefix_len, uint32_t next_hop, uint32_t __attribute__((unused)) vni) {
     if (!ctx) {
         return -1;
     }
@@ -1266,7 +1266,7 @@ int evpn_install_ip_route(evpn_ctx_t *ctx, uint32_t ip_prefix,
  * Remove IP prefix route from routing table
  */
 int evpn_remove_ip_route(evpn_ctx_t *ctx, uint32_t ip_prefix,
-                        uint8_t prefix_len, uint32_t vni) {
+                        uint8_t prefix_len, uint32_t __attribute__((unused)) vni) {
     if (!ctx) {
         return -1;
     }
@@ -1302,7 +1302,7 @@ static int mac_mobility_count = 0;
 /**
  * Find MAC mobility entry
  */
-static mac_mobility_entry_t* find_mac_mobility(const uint8_t *mac, uint32_t vni) {
+static mac_mobility_entry_t* find_mac_mobility(const uint8_t *mac, uint32_t __attribute__((unused)) vni) {
     for (int i = 0; i < mac_mobility_count; i++) {
         if (memcmp(mac_mobility_table[i].mac, mac, 6) == 0 &&
             mac_mobility_table[i].vni == vni) {
@@ -1426,7 +1426,7 @@ int evpn_handle_mac_move(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni,
 /**
  * Get MAC mobility sequence number
  */
-uint32_t evpn_get_mac_sequence(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni) {
+uint32_t evpn_get_mac_sequence(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t __attribute__((unused)) vni) {
     if (!ctx || !mac) {
         return 0;
     }
@@ -1438,7 +1438,7 @@ uint32_t evpn_get_mac_sequence(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni
 /**
  * Increment MAC mobility sequence
  */
-uint32_t evpn_increment_mac_sequence(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t vni) {
+uint32_t evpn_increment_mac_sequence(evpn_ctx_t *ctx, const uint8_t *mac, uint32_t __attribute__((unused)) vni) {
     if (!ctx || !mac) {
         return 0;
     }
@@ -1490,7 +1490,7 @@ static uint64_t arp_requests_suppressed = 0;
 /**
  * Enable ARP suppression for a VNI
  */
-int evpn_enable_arp_suppression(evpn_ctx_t *ctx, uint32_t vni) {
+int evpn_enable_arp_suppression(evpn_ctx_t *ctx, uint32_t __attribute__((unused)) vni) {
     if (!ctx) {
         return -1;
     }
@@ -1505,7 +1505,7 @@ int evpn_enable_arp_suppression(evpn_ctx_t *ctx, uint32_t vni) {
 /**
  * Add entry to ARP cache
  */
-int evpn_arp_cache_add(evpn_ctx_t *ctx, uint32_t ip, const uint8_t *mac, uint32_t vni) {
+int evpn_arp_cache_add(evpn_ctx_t *ctx, uint32_t ip, const uint8_t *mac, uint32_t __attribute__((unused)) vni) {
     if (!ctx || !mac) {
         return -1;
     }
@@ -1615,7 +1615,7 @@ int evpn_generate_arp_reply(evpn_ctx_t *ctx, uint32_t src_ip, const uint8_t *src
 /**
  * Get ARP suppression statistics
  */
-int evpn_get_arp_stats(evpn_ctx_t *ctx, uint32_t vni,
+int evpn_get_arp_stats(evpn_ctx_t *ctx, uint32_t __attribute__((unused)) vni,
                       uint64_t *requests_received,
                       uint64_t *requests_suppressed,
                       uint64_t *cache_entries) {
@@ -1643,10 +1643,10 @@ int evpn_get_arp_stats(evpn_ctx_t *ctx, uint32_t vni,
  * Import/Export Filtering
  * ============================================================ */
 
-static evpn_route_policy_t import_policies[16];
-static int import_policy_count = 0;
-static evpn_route_policy_t export_policies[16];
-static int export_policy_count = 0;
+static evpn_route_policy_t __attribute__((unused)) import_policies[16];
+static int __attribute__((unused)) import_policy_count = 0;
+static evpn_route_policy_t __attribute__((unused)) export_policies[16];
+static int __attribute__((unused)) export_policy_count = 0;
 
 /**
  * Create route policy
@@ -1666,8 +1666,8 @@ int evpn_create_policy(evpn_ctx_t *ctx, const char *name,
 /**
  * Apply import policy
  */
-bool evpn_apply_import_policy(evpn_ctx_t *ctx, evpn_route_type_t type,
-                              uint32_t vni) {
+bool evpn_apply_import_policy(evpn_ctx_t __attribute__((unused)) *ctx, evpn_route_type_t __attribute__((unused)) type,
+                              uint32_t __attribute__((unused)) vni) {
     // Default: permit all
     return true;
 }
@@ -1675,8 +1675,8 @@ bool evpn_apply_import_policy(evpn_ctx_t *ctx, evpn_route_type_t type,
 /**
  * Apply export policy
  */
-bool evpn_apply_export_policy(evpn_ctx_t *ctx, evpn_route_type_t type,
-                              uint32_t vni) {
+bool evpn_apply_export_policy(evpn_ctx_t __attribute__((unused)) *ctx, evpn_route_type_t __attribute__((unused)) type,
+                              uint32_t __attribute__((unused)) vni) {
     // Default: permit all
     return true;
 }

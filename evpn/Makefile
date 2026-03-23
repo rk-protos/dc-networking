@@ -3,13 +3,13 @@
 # * Project     : EVPN Protocol Implementation (RFC 8365)
 # * Description : Part of minimal implementation of EVPN
 # * Author      : RK (kvrkr866@gmail.com)
-# * File name   : evpn_bgp.h  
-# * Purpose     : This implementation provides  
-# *                Minimal BGP-4 implementation focused on EVPN requirements
+# * File name   : Makefile  
+# * Purpose     : This contains the Makefile for EVPN project  
+# *                
 # *****************************************************************************/
 
 CC = gcc
-CFLAGS = -Wall -Wextra -I./include -pthread  -g -O2
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -I./include -pthread  -g -O2
 LDFLAGS = -pthread
 
 # Directories
@@ -26,7 +26,8 @@ SOURCES = $(SRC_DIR)/evpn_init.c \
           $(SRC_DIR)/evpn_routes.c \
           $(SRC_DIR)/evpn_vxlan.c \
           $(SRC_DIR)/evpn_update.c \
-          $(SRC_DIR)/evpn_multihoming.c
+          $(SRC_DIR)/evpn_multihoming.c \
+          $(SRC_DIR)/evpn_features.c
 
 # Object files
 OBJECTS = $(SOURCES:.c=.o)
@@ -36,7 +37,7 @@ LIBRARY = libevpn.a
 
 
 # Tests
-TESTS = $(BIN_DIR)/test_evpn_basics $(BIN_DIR)/bgp_session_demo $(BIN_DIR)/mac_learning_demo $(BIN_DIR)/multihoming_demo $(BIN_DIR)/single_active_demo $(BIN_DIR)/mass_withdrawal_demo $(BIN_DIR)/aliasing_demo $(BIN_DIR)/l3_features_demo
+TESTS = $(BIN_DIR)/test_evpn_basics $(BIN_DIR)/bgp_session_demo $(BIN_DIR)/mac_learning_demo $(BIN_DIR)/multihoming_demo $(BIN_DIR)/single_active_demo $(BIN_DIR)/mass_withdrawal_demo $(BIN_DIR)/aliasing_demo $(BIN_DIR)/l3_features_demo $(BIN_DIR)/evpn_features_demo
 
 # Default target
 all: $(LIBRARY) tests
@@ -52,7 +53,7 @@ $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 	@echo "Compiling: $<"
 	$(CC) $(CFLAGS) -c $< -o $@
 
-tests: $(LIBRARY) $(TEST_DIR)/bgp_session_demo.c $(TEST_DIR)/mac_learning_demo.c $(TEST_DIR)/multihoming_demo.c $(TEST_DIR)/test_evpn_basics.c $(TEST_DIR)/single_active_demo.c $(TEST_DIR)/mass_withdrawal_demo.c $(TEST_DIR)/aliasing_demo.c $(TEST_DIR)/l3_features_demo.c
+tests: $(LIBRARY) $(TEST_DIR)/bgp_session_demo.c $(TEST_DIR)/mac_learning_demo.c $(TEST_DIR)/multihoming_demo.c $(TEST_DIR)/test_evpn_basics.c $(TEST_DIR)/single_active_demo.c $(TEST_DIR)/mass_withdrawal_demo.c $(TEST_DIR)/aliasing_demo.c $(TEST_DIR)/l3_features_demo.c $(TEST_DIR)/evpn_features_demo.c
 	@echo "Building tests: $@"
 	mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $(TEST_DIR)/bgp_session_demo.c  -L. -levpn $(LDFLAGS) -o $(BIN_DIR)/bgp_session_demo
@@ -63,6 +64,7 @@ tests: $(LIBRARY) $(TEST_DIR)/bgp_session_demo.c $(TEST_DIR)/mac_learning_demo.c
 	$(CC) $(CFLAGS) $(TEST_DIR)/mass_withdrawal_demo.c  -L. -levpn $(LDFLAGS) -o $(BIN_DIR)/mass_withdrawal_demo
 	$(CC) $(CFLAGS) $(TEST_DIR)/aliasing_demo.c  -L. -levpn $(LDFLAGS) -o $(BIN_DIR)/aliasing_demo
 	$(CC) $(CFLAGS) $(TEST_DIR)/l3_features_demo.c  -L. -levpn $(LDFLAGS) -o $(BIN_DIR)/l3_features_demo
+	$(CC) $(CFLAGS) $(TEST_DIR)/evpn_features_demo.c  -L. -levpn $(LDFLAGS) -o $(BIN_DIR)/evpn_features_demo
 	@echo "✓ demo and test binaries built successfully"
 
 
