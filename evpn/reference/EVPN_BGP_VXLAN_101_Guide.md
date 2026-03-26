@@ -47,9 +47,9 @@ In networking:
 
 | Technology | Role | Like Building a House |
 |------------|------|----------------------|
-| **VXLAN** | The Tunnel Builder 💪 | Materials - physically carries traffic |
-| **EVPN** | The Brain 🧠 | Blueprints - decides what goes where |
-| **BGP** | The Messenger 📨 | Communication - workers sharing info |
+| **VXLAN** | The Tunnel Builder  | Materials - physically carries traffic |
+| **EVPN** | The Brain  | Blueprints - decides what goes where |
+| **BGP** | The Messenger  | Communication - workers sharing info |
 
 **Key Point:** All three work together. Remove one, and the system breaks!
 
@@ -57,7 +57,7 @@ In networking:
 
 # The Three Key Players
 
-## 🎭 Meet the Characters
+##  Meet the Characters
 
 ### 1. VXLAN (Virtual eXtensible Local Area Network)
 **Nickname:** The Tunnel Builder  
@@ -86,11 +86,11 @@ In networking:
 ## How They Depend on Each Other
 
 ```
-        🧠 EVPN
+        EVPN
          ↙  ↘
     Needs  Creates
       ↙      ↘
-   📨 BGP    💪 VXLAN
+    BGP     VXLAN
      ↓          ↓
   Carries    Forwards
 Information   Traffic
@@ -145,7 +145,7 @@ Device A                    Device B
    ├─────── "Hello!" ─────────>│
    │<──── "Hello back!" ────────┤
    │                           │
-   │  ✅ Connection Established │
+   │   Connection Established │
 ```
 
 - Devices connect using TCP (a reliable protocol)
@@ -213,7 +213,7 @@ BGP connections go through stages:
    ↓
    "All good, let's start!"
    ↓
-5. Established ✅
+5. Established 
    "Fully operational!"
 ```
 
@@ -261,7 +261,7 @@ Think of these like language codes - they tell BGP "we're speaking EVPN language
 
 ```
 Server 1: "Where is MAC address XX:XX:XX?"
-Network: *floods question to everyone* 🌊
+Network: *floods question to everyone* 
 All Servers: "Is it me? Is it me? Is it me?"
 ```
 
@@ -274,7 +274,7 @@ All Servers: "Is it me? Is it me? Is it me?"
 ```
 Server 1: "Where is MAC address XX:XX:XX?"
 EVPN: "I know exactly! It's at location Y."
-Server 1: "Thanks!" ✅
+Server 1: "Thanks!" 
 ```
 
 **Benefit:** No flooding! Direct communication!
@@ -380,15 +380,15 @@ Announcement:
 
 ## Key EVPN Features
 
-### 1. No Flooding! 🎯
+### 1. No Flooding! 
 
 Traditional networks flood unknown traffic everywhere. EVPN knows exactly where everything is.
 
-**Traffic reduction:** 80-95% less broadcast traffic!
+**Traffic reduction:**  less broadcast traffic!
 
 ---
 
-### 2. MAC Mobility 🚚
+### 2. MAC Mobility 
 
 When a virtual machine moves from one server to another, EVPN updates everyone:
 
@@ -425,14 +425,14 @@ One device can connect to multiple switches for redundancy:
 
 ---
 
-### 4. ARP Suppression 🛑
+### 4. ARP Suppression 
 
 EVPN can answer ARP requests locally without flooding:
 
 ```
 Device: "What's the MAC for IP 192.168.1.20?"
 EVPN:   "I know! It's DD:EE:FF:11:22:33"
-Device: "Thanks!" ✅
+Device: "Thanks!" 
 
 (No need to broadcast to everyone!)
 ```
@@ -586,7 +586,7 @@ Building 3000:  Customer C's network
 ```
 VXLAN: "I can create tunnels..."
 VXLAN: "...but where do I send this packet?"
-VXLAN: "I guess I'll flood it everywhere?" 🌊
+VXLAN: "I guess I'll flood it everywhere?" 
 ```
 
 ### With EVPN:
@@ -594,7 +594,7 @@ VXLAN: "I guess I'll flood it everywhere?" 🌊
 ```
 VXLAN: "Where do I send this packet?"
 EVPN:  "Send to VTEP 10.0.0.2, VNI 1000"
-VXLAN: "Perfect! Creating tunnel..." ✅
+VXLAN: "Perfect! Creating tunnel..." 
 ```
 
 **Result:** Precise, efficient forwarding with no flooding!
@@ -635,7 +635,7 @@ Data Center Network:
 
 ---
 
-## Step 1: First Contact 📞
+## Step 1: First Contact 
 
 **VM1 sends its first packet:**
 
@@ -657,7 +657,7 @@ Data Center Network:
 
 ---
 
-## Step 2: EVPN Creates an Announcement 📢
+## Step 2: EVPN Creates an Announcement 
 
 **EVPN on VTEP1 creates a Type 2 route:**
 
@@ -680,7 +680,7 @@ Data Center Network:
 
 ---
 
-## Step 3: BGP Carries the Message 📨
+## Step 3: BGP Carries the Message 
 
 **BGP packages and sends the announcement:**
 
@@ -701,7 +701,7 @@ VTEP1                          Route Reflector
 
 ---
 
-## Step 4: Route Reflector Distributes 📡
+## Step 4: Route Reflector Distributes 
 
 **Route Reflector shares with everyone:**
 
@@ -721,7 +721,7 @@ Each receives:
 
 ---
 
-## Step 5: VTEP2 Learns and Stores 💾
+## Step 5: VTEP2 Learns and Stores 
 
 **VTEP2 receives and processes the information:**
 
@@ -748,7 +748,7 @@ Each receives:
 
 ---
 
-## Step 6: VM2 Sends to VM1 📤
+## Step 6: VM2 Sends to VM1 
 
 **Now VM2 wants to send to VM1:**
 
@@ -773,7 +773,7 @@ Each receives:
 
 ---
 
-## Step 7: VXLAN Encapsulation 📦
+## Step 7: VXLAN Encapsulation 
 
 **VTEP2 wraps the packet:**
 
@@ -806,7 +806,7 @@ Original Packet from VM2:
 
 ---
 
-## Step 8: Network Routing 🛣️
+## Step 8: Network Routing 
 
 **The encapsulated packet travels through the network:**
 
@@ -832,7 +832,7 @@ VTEP2                Network               VTEP1
 
 ---
 
-## Step 9: VXLAN Decapsulation 📭
+## Step 9: VXLAN Decapsulation 
 
 **VTEP1 receives and unwraps:**
 
@@ -842,7 +842,7 @@ VTEP1 receives packet:
 ┌────────────────────────────────────┐
 │ "Packet on port 4789 - it's VXLAN!"│
 │                                    │
-│ 1. Check VNI: 1000 ✅              │
+│ 1. Check VNI: 1000                 │
 │ 2. Remove outer headers            │
 │ 3. Extract original packet         │
 └────────────────────────────────────┘
@@ -859,7 +859,7 @@ VTEP1 receives packet:
 
 ---
 
-## Step 10: Delivery! 🎉
+## Step 10: Delivery! 
 
 **VM1 receives the packet:**
 
@@ -870,7 +870,7 @@ VTEP1 receives packet:
        │
        ▼
 ┌──────────────┐
-│     VM1      │  "Message received!" ✅
+│     VM1      │  "Message received!" 
 │  AA:BB:CC    │
 └──────────────┘
 ```
@@ -879,40 +879,40 @@ VTEP1 receives packet:
 
 ---
 
-## The Complete Picture 🖼️
+## The Complete Picture 
 
 ```
 ┌────────────────────────────────────────────────────────┐
 │                   Complete Flow                        │
 ├────────────────────────────────────────────────────────┤
 │                                                        │
-│  1. VM1 sends packet → VTEP1 sees new MAC             │
+│  1. VM1 sends packet → VTEP1 sees new MAC              │
 │                          │                             │
-│  2. EVPN creates Type 2 route                         │
-│     "AA:BB:CC is here!"  │                            │
+│  2. EVPN creates Type 2 route                          │
+│     "AA:BB:CC is here!"  │                             │
 │                          ↓                             │
-│  3. BGP carries the announcement                      │
-│     to Route Reflector   │                            │
+│  3. BGP carries the announcement                       │
+│     to Route Reflector   │                             │
 │                          ↓                             │
-│  4. Route Reflector distributes                       │
-│     to all VTEPs         │                            │
+│  4. Route Reflector distributes                        │
+│     to all VTEPs         │                             │
 │                          ↓                             │
-│  5. VTEP2 receives and stores                         │
-│     in MAC table         │                            │
+│  5. VTEP2 receives and stores                          │
+│     in MAC table         │                             │
 │                          ↓                             │
-│  6. VM2 sends to VM1                                  │
-│     VTEP2 knows location!│                            │
+│  6. VM2 sends to VM1                                   │
+│     VTEP2 knows location!│                             │
 │                          ↓                             │
-│  7. VXLAN encapsulation                               │
-│     wraps the packet     │                            │
+│  7. VXLAN encapsulation                                │
+│     wraps the packet     │                             │
 │                          ↓                             │
-│  8. Network routes packet                             │
-│     to VTEP1             │                            │
+│  8. Network routes packet                              │
+│     to VTEP1             │                             │
 │                          ↓                             │
-│  9. VXLAN decapsulation                               │
-│     unwraps the packet   │                            │
+│  9. VXLAN decapsulation                                │
+│     unwraps the packet   │                             │
 │                          ↓                             │
-│  10. VM1 receives! ✅                                  │
+│  10. VM1 receives!                                     │
 │                                                        │
 └────────────────────────────────────────────────────────┘
 ```
@@ -970,7 +970,7 @@ Unknown packet arrives
 ↓
 Check EVPN MAC table
 ↓
-Direct to correct destination ✅
+Direct to correct destination 
 ↓
 99% less traffic!
 ```
@@ -996,7 +996,7 @@ All VTEPs receive update via BGP
 ↓
 Everyone knows new location
 ↓
-Zero downtime! ✅
+Zero downtime! 
 ```
 
 ---
@@ -1055,7 +1055,7 @@ Zero downtime! ✅
 
 ---
 
-### 2. Efficiency ⚡
+### 2. Efficiency 
 
 **Traffic Reduction:**
 - No flooding for unknown MACs
@@ -1066,7 +1066,7 @@ Zero downtime! ✅
 
 ---
 
-### 3. Flexibility 🔄
+### 3. Flexibility 
 
 **VM Mobility:**
 - Move VMs anywhere without changing IP
@@ -1080,7 +1080,7 @@ Zero downtime! ✅
 
 ---
 
-### 4. Redundancy 🛡️
+### 4. Redundancy 
 
 **High Availability:**
 - Multi-homing support
@@ -1096,7 +1096,7 @@ Zero downtime! ✅
 
 ## Use Cases
 
-### 1. Cloud Service Providers ☁️
+### 1. Cloud Service Providers 
 
 **Challenge:** Thousands of customers, millions of VMs
 
@@ -1108,7 +1108,7 @@ Zero downtime! ✅
 
 ---
 
-### 2. Enterprise Data Centers 🏢
+### 2. Enterprise Data Centers 
 
 **Challenge:** Multiple locations, need VM mobility
 
@@ -1120,7 +1120,7 @@ Zero downtime! ✅
 
 ---
 
-### 3. Network Function Virtualization (NFV) 🔧
+### 3. Network Function Virtualization (NFV) 
 
 **Challenge:** Virtual firewalls, routers, load balancers
 
@@ -1132,7 +1132,7 @@ Zero downtime! ✅
 
 ---
 
-### 4. Containerized Applications 🐳
+### 4. Containerized Applications 
 
 **Challenge:** Kubernetes clusters, microservices
 
@@ -1204,7 +1204,7 @@ Remove any one, and the system breaks.
 | Feature | Traditional VLANs | EVPN + VXLAN |
 |---------|-------------------|--------------|
 | **Maximum networks** | 4,096 | 16 million |
-| **Spans routers?** | No ❌ | Yes ✅ |
+| **Spans routers?** | No  | Yes  |
 | **MAC table size** | Limited | Unlimited |
 | **Multi-homing** | Complex | Built-in |
 | **VM mobility** | Difficult | Easy |
@@ -1218,17 +1218,17 @@ Remove any one, and the system breaks.
 
 **Security Benefits:**
 
-✅ **Tenant Isolation:**
+ **Tenant Isolation:**
 - VNI provides complete separation
 - No cross-customer traffic leaks
 - Better than VLANs
 
-✅ **Controlled Learning:**
+ **Controlled Learning:**
 - Only authorized MACs accepted
 - Prevents MAC spoofing
 - Route filtering available
 
-✅ **Encryption Ready:**
+ **Encryption Ready:**
 - Can add IPsec to tunnels
 - End-to-end encryption
 - Secure multi-tenant
@@ -1322,22 +1322,22 @@ Remove any one, and the system breaks.
 
 **Current Trends:**
 
-✅ **Industry Standard:**
+ **Industry Standard:**
 - All major vendors support it
 - Required for modern data centers
 - Cloud providers all use it
 
-✅ **Continuous Innovation:**
+ **Continuous Innovation:**
 - Better hardware support
 - More automation
 - Enhanced features
 
-✅ **Integration:**
+ **Integration:**
 - SDN controllers
 - Kubernetes networking
 - Service mesh integration
 
-**Verdict:** This is the future of data center networking!
+This is the future of data center networking!
 
 ---
 
@@ -1348,7 +1348,7 @@ Remove any one, and the system breaks.
 ### Three Technologies, One Solution
 
 ```
-        🧠 EVPN
+         EVPN
     (The Intelligence)
            │
     Tells everyone
@@ -1356,7 +1356,7 @@ Remove any one, and the system breaks.
            │
     ┌──────┴──────┐
     │             │
-📨 BGP         💪 VXLAN
+ BGP          VXLAN
 (Messenger)  (Tunnel Builder)
     │             │
 Carries the    Creates the
@@ -1393,7 +1393,7 @@ BGP (communicates)
   + 
 VXLAN (forwards)
   = 
-Modern, Scalable, Efficient Networking! ✨
+Modern, Scalable, Efficient Networking! 
 ```
 
 ---
@@ -1429,15 +1429,7 @@ Modern, Scalable, Efficient Networking! ✨
    - RFC 8365 (EVPN Overlay)
    - RFC 7348 (VXLAN)
 
-2. **Hands-On Practice:**
-   - Lab environment
-   - Virtual switches
-   - Vendor documentation
 
-3. **Visual Aids:**
-   - Review the included diagrams
-   - Watch vendor videos
-   - Attend webinars
 
 ---
 
@@ -1461,7 +1453,7 @@ This guide references four visual diagrams:
    - Complete packet journey
    - Shows encapsulation/decapsulation
 
-**Recommendation:** Review these diagrams alongside this guide for better understanding.
+ Review these diagrams alongside this guide for better understanding.
 
 ---
 
@@ -1480,16 +1472,9 @@ They solve real problems:
 
 ---
 
-**This is not just a technology - it's the future of networking.** 🚀
+**This is not just a technology - it's the future of networking.** 
 
----
 
-*Document Version: 2.0*  
-*Created: March 2026*  
-*Format: Beginner-Friendly Guide*  
-*No coding knowledge required!*
-
----
 
 ## Glossary of Terms
 
@@ -1512,4 +1497,4 @@ They solve real problems:
 
 ---
 
-*Thank you for reading! Happy learning!* 📚✨
+*Happy learning!*
